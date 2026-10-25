@@ -18,6 +18,7 @@ async function connectToMongoDB() {
 
     const db = client.db("wanderlands");
     const destinationCollection = db.collection("destinations");
+    const bookingCollection = db.collection("bookings");
 
     app.get("/destinations", async (req, res) => {
       const result = await destinationCollection.find().toArray();
@@ -32,10 +33,35 @@ async function connectToMongoDB() {
       res.json(result);
     });
 
+    app.patch("/destinations/:id", async (req, res) => {
+      const { id } = req.params;
+      const updatedData = req.body;
+
+      const result = await destinationCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedData },
+      );
+      res.json(result);
+    });
+
+    app.delete("/destinations/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await destinationCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.json(result);
+    });
+
     app.post("/destination", async (req, res) => {
       const destinationData = req.body;
       console.log(destinationData);
       const result = await destinationCollection.insertOne(destinationData);
+      res.json(result);
+    });
+
+    app.post("/bookings", async (req, res) => {
+      const bookingData = req.body;
+      const result = await bookingCollection.insertOne(bookingData);
       res.json(result);
     });
 
